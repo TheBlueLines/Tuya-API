@@ -11,6 +11,8 @@
     }
     public class Base
     {
+        public ushort? code { get; set; }
+        public string? msg { get; set; }
         public object? result { get; set; }
         public bool success { get; set; }
         public long t { get; set; }

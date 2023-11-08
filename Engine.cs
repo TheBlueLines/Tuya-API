@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Unicode;
 
 namespace TTMC.Tuya
 {
@@ -19,6 +18,37 @@ namespace TTMC.Tuya
         public static string GetHash(string value)
         {
             return Convert.ToHexString(sha.ComputeHash(Encoding.UTF8.GetBytes(value))).ToLower();
+        }
+        public static JsonSerializerOptions jsonSerializerOptions
+        {
+            get
+            {
+                return new()
+                {
+                    WriteIndented = false,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+                };
+            }
+        }
+        public static Base ToBase(string text)
+        {
+            if (text.StartsWith('{') && text.EndsWith('}'))
+            {
+                Base? item = JsonSerializer.Deserialize<Base>(text);
+                if (item != null)
+                {
+                    if (item.success)
+					{
+						return item;
+					}
+					if (!string.IsNullOrEmpty(item.msg))
+					{
+						throw new(item.msg);
+					}
+				}
+			}
+            throw new(text);
         }
     }
 }
